@@ -1,101 +1,122 @@
-import Image from "next/image";
+'use client';
+
+import { Pokemon } from '@/type/type';
+import getData from './../http/http';
+import { useEffect, useState } from "react";
+import Image from 'next/image';
+import getColorByType from './../util/ColorByType';
+import {Sigmar_One } from "next/font/google";
+import { Nunito } from 'next/font/google'
+
+
+const roboto = Sigmar_One({
+  weight: '400',
+  subsets: ['latin'],
+})
+
+const nunito = Nunito({ subsets: ['latin'] })
+
+
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const url = 'https://pokeapi.co/api/v2/pokemon?limit=16&offset=0';
+  const [pokedata, setPokeData] = useState<Pokemon[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    fetchPokemonData();
+  }, []);
+
+  const fetchPokemonData = async () => {
+    try {
+      const res = await getData(url);
+
+      if (res && res.results) {
+        const detailedPokemonData = await Promise.all(
+          res.results.map(async (element: { url: string }) => {
+            const pokemonDetail = await getData(element.url);
+            return pokemonDetail;
+          })
+        );
+
+        setPokeData(detailedPokemonData);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar dados dos Pokémons:", error);
+    }
+  };
+
+  return (
+    <>
+    <header className={`${roboto.className} border-b border-gray-800 shadow-sm`}>
+        <div className='mx-auto container py-4'>
+        <h1 className=' text-2xl text-yellow-400'>POKEMON</h1>
+
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    </header>
+      <section className={`${nunito.className} container mx-auto `} >
+      <div className='grid grid-cols-1 px-2 lg:grid-cols-3 2xl:grid-cols-4 2xl:p-0 gap-7 my-7'>
+      {pokedata.map((item, index) => (
+        <div key={index}
+        
+        className='shadow-xl rounded-lg cursor-pointer hover:scale-105 transition-all duration-300 hover:bg-[#1f1f3d] z-10'> 
+            <div className="text-center text-white border border-gray-700 rounded" >
+              <div style={{ backgroundColor: getColorByType(item.types[0].type.name) }} className='flex justify-between items-center px-2 '>
+              <h2 className='capitalize font-bold text-lg '>{item.name}</h2>
+              
+
+                  <div className='font-extrabold'>
+                    <span className='text-xs italic'>hp</span>
+                    
+                    <span className='text-lg italic'> {item.stats.find(cc => cc.stat.name === "hp")?.base_stat ?? 'N/A'}</span>
+                    </div>
+                
+
+              </div>
+              <Image
+              className='mx-auto'
+              src={item.sprites?.other?.['official-artwork'].front_default|| '/path/to/default/image.png'}
+              width={250}
+              height={250 }
+              alt="Picture of the author"
+              />
+
+              
+          <div className='bg-[#242233] py-2 '>
+         
+              poder
+         
+      
+          </div>
+          <div className='bg-[#242233] py-2 '>
+         
+              fraqueza
+         
+      
+          </div>
+
+          <div className='bg-[#242233] py-2 '>
+         
+              poder
+         
+      
+          </div>
+          <div className='bg-[#242233] py-2 '>
+         
+         caracteristicas
+    
+ 
+     </div>
+
+           
+         </div>
+
+       
+          
+         
+        </div>
+      ))}
     </div>
+    </section>
+    </>
   );
 }
