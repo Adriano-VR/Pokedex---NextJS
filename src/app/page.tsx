@@ -99,12 +99,12 @@ export default function Home() {
 
           const double_damage_from =
             speciesData.damage_relations.double_damage_from.find(
-              (entry) => entry.name
+              (entry: { name: string }) => entry.name
             )?.name || "Nenhuma";
 
           const half_damage_from =
             speciesData.damage_relations.half_damage_from.find(
-              (entry) => entry.name
+              (entry: { name: string }) => entry.name
             )?.name || "Nenhuma";
 
           typesData[pokemon.id] = {
@@ -189,13 +189,19 @@ export default function Home() {
                   <ul className="flex gap-8 font-semibold justify-center items-center pb-4  ">
                     <li
                       style={{
-                       
-                        borderRightWidth:2,
+                        borderRightWidth: 2,
                         borderRightColor:
                           types[item.id] &&
-                          getColorByType(types[item.id].fraquezas),
+                          getColorByType(
+                            (
+                              types[item.id] as {
+                                fraquezas: string;
+                                resistencias: string;
+                              }
+                            ).fraquezas
+                          ),
                       }}
-                     className=" flex gap-1 capitalize pr-2"
+                      className="flex gap-1 capitalize pr-2"
                     >
                       <Image
                         src="/broken-link.png"
@@ -205,18 +211,30 @@ export default function Home() {
                       />
 
                       {types[item.id]
-                        ? types[item.id].fraquezas
+                        ? (
+                            types[item.id] as {
+                              fraquezas: string;
+                              resistencias: string;
+                            }
+                          ).fraquezas
                         : "Carregando fraquezas..."}
                     </li>
 
                     <li
                       style={{
-                        borderRightWidth:2,
+                        borderRightWidth: 2,
                         borderRightColor:
                           types[item.id] &&
-                          getColorByType(types[item.id].resistencias),
+                          getColorByType(
+                            (
+                              types[item.id] as {
+                                fraquezas: string;
+                                resistencias: string;
+                              }
+                            ).resistencias
+                          ),
                       }}
-                      className=" flex gap-1 capitalize pr-2"
+                      className="flex gap-1 capitalize pr-2"
                     >
                       <Image
                         src="/antibiotic-resistant.png"
@@ -224,16 +242,19 @@ export default function Home() {
                         height={25}
                         alt="a"
                       />
+
                       {types[item.id]
-                        ? types[item.id].resistencias
+                        ? (
+                            types[item.id] as {
+                              fraquezas: string;
+                              resistencias: string;
+                            }
+                          ).resistencias
                         : "Carregando resistências..."}
                     </li>
                   </ul>
 
-                  {/* Exibe fraquezas e resistências
-                  <span className='text-sm text-white'>
-                    // {types[item.id] ? `Fraquezas: ${types[item.id].fraquezas}, Resistências: ${types[item.id].resistencias}` : 'Carregando fraquezas e resistências...'}
-                  </span> */}
+                
                 </div>
               </div>
             </div>
